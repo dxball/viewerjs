@@ -247,6 +247,7 @@ export default {
       image = document.createElement('video');
       image.controls = true;
       image.autoplay = true;
+      image.className = 'video-js';
 
       const videoSource = document.createElement('source');
       videoSource.src = url;

@@ -5,7 +5,7 @@
  * Copyright 2015-present Chen Fengyuan
  * Released under the MIT license
  *
- * Date: 2023-12-27T06:03:23.662Z
+ * Date: 2023-12-27T08:43:48.182Z
  */
 
 function ownKeys(e, r) {
@@ -1843,6 +1843,7 @@ var methods = {
       image = document.createElement('video');
       image.controls = true;
       image.autoplay = true;
+      image.className = 'video-js';
       var videoSource = document.createElement('source');
       videoSource.src = url;
       videoSource.type = 'video/mp4';
