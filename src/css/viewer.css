@@ -138,7 +138,8 @@
   right: 0;
   top: 0;
 
-  & > img {
+  & > img,
+  & > video {
     height: auto;
     margin: 15px auto;
     max-width: 90% !important;
@@ -329,6 +330,7 @@
 }
 
 .viewer-button {
+  -webkit-app-region: no-drag;
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: 50%;
   cursor: pointer;
@@ -339,7 +341,6 @@
   top: -40px;
   transition: background-color 0.15s;
   width: 80px;
-  -webkit-app-region: no-drag;
 
   &:focus,
   &:hover {

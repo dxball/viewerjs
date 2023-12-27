@@ -5,7 +5,7 @@
  * Copyright 2015-present Chen Fengyuan
  * Released under the MIT license
  *
- * Date: 2023-09-17T03:16:38.052Z
+ * Date: 2023-12-27T06:03:23.662Z
  */
 
 'use strict';
@@ -366,6 +366,7 @@ var EVENT_ZOOM = 'zoom';
 var EVENT_ZOOMED = 'zoomed';
 var EVENT_PLAY = 'play';
 var EVENT_STOP = 'stop';
+var EVENT_LOADEDMETADATA = 'loadedmetadata';
 
 // Data keys
 var DATA_ACTION = "".concat(NAMESPACE, "Action");
@@ -836,6 +837,12 @@ function getImageNaturalSizes(image, options, callback) {
   // Modern browsers (except Safari)
   if (image.naturalWidth && !IS_SAFARI) {
     callback(image.naturalWidth, image.naturalHeight);
+    return newImage;
+  }
+
+  // If the element is a video
+  if (image.videoWidth) {
+    callback(image.videoWidth, image.videoHeight);
     return newImage;
   }
   var body = document.body || document.documentElement;
@@ -1633,6 +1640,9 @@ var handlers = {
         addListener(image, EVENT_LOAD, _this3.loadImage.bind(_this3), {
           once: true
         });
+        addListener(image, EVENT_LOADEDMETADATA, _this3.loadImage.bind(_this3), {
+          once: true
+        });
         dispatchEvent(image, EVENT_LOAD);
       });
     }
@@ -1830,15 +1840,26 @@ var methods = {
     var img = item.querySelector('img');
     var url = getData(img, 'originalUrl');
     var alt = img.getAttribute('alt');
-    var image = document.createElement('img');
-    forEach(options.inheritedAttributes, function (name) {
-      var value = img.getAttribute(name);
-      if (value !== null) {
-        image.setAttribute(name, value);
-      }
-    });
-    image.src = url;
-    image.alt = alt;
+    var image = null;
+    if (url.match(/\.mp4$/)) {
+      image = document.createElement('video');
+      image.controls = true;
+      image.autoplay = true;
+      var videoSource = document.createElement('source');
+      videoSource.src = url;
+      videoSource.type = 'video/mp4';
+      image.appendChild(videoSource);
+    } else {
+      image = document.createElement('img');
+      forEach(options.inheritedAttributes, function (name) {
+        var value = img.getAttribute(name);
+        if (value !== null) {
+          image.setAttribute(name, value);
+        }
+      });
+      image.src = url;
+      image.alt = alt;
+    }
     if (isFunction(options.view)) {
       addListener(element, EVENT_VIEW, options.view, {
         once: true
@@ -1886,6 +1907,7 @@ var methods = {
     };
     var onLoad;
     var onError;
+    var _onLOADEDMETADATA;
     addListener(element, EVENT_VIEWED, onViewed, {
       once: true
     });
@@ -1927,6 +1949,12 @@ var methods = {
         if (options.loading) {
           removeClass(_this2.canvas, CLASS_LOADING);
         }
+      }, {
+        once: true
+      });
+      addListener(image, EVENT_LOADEDMETADATA, _onLOADEDMETADATA = function onLOADEDMETADATA() {
+        removeListener(image, EVENT_LOADEDMETADATA, _onLOADEDMETADATA);
+        _this2.load();
       }, {
         once: true
       });

@@ -64,6 +64,7 @@ export const EVENT_ZOOM = 'zoom';
 export const EVENT_ZOOMED = 'zoomed';
 export const EVENT_PLAY = 'play';
 export const EVENT_STOP = 'stop';
+export const EVENT_LOADEDMETADATA = 'loadedmetadata';
 
 // Data keys
 export const DATA_ACTION = `${NAMESPACE}Action`;

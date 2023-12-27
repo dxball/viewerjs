@@ -20,6 +20,7 @@ import {
   EVENT_ROTATED,
   EVENT_SCALE,
   EVENT_SCALED,
+  EVENT_LOADEDMETADATA,
   EVENT_SHOW,
   EVENT_STOP,
   EVENT_TRANSITION_END,
@@ -240,18 +241,30 @@ export default {
     const img = item.querySelector('img');
     const url = getData(img, 'originalUrl');
     const alt = img.getAttribute('alt');
-    const image = document.createElement('img');
+    let image = null;
 
-    forEach(options.inheritedAttributes, (name) => {
-      const value = img.getAttribute(name);
+    if (url.match(/\.mp4$/)) {
+      image = document.createElement('video');
+      image.controls = true;
+      image.autoplay = true;
 
-      if (value !== null) {
-        image.setAttribute(name, value);
-      }
-    });
+      const videoSource = document.createElement('source');
+      videoSource.src = url;
+      videoSource.type = 'video/mp4';
+      image.appendChild(videoSource);
+    } else {
+      image = document.createElement('img');
+      forEach(options.inheritedAttributes, (name) => {
+        const value = img.getAttribute(name);
 
-    image.src = url;
-    image.alt = alt;
+        if (value !== null) {
+          image.setAttribute(name, value);
+        }
+      });
+
+      image.src = url;
+      image.alt = alt;
+    }
 
     if (isFunction(options.view)) {
       addListener(element, EVENT_VIEW, options.view, {
@@ -311,6 +324,7 @@ export default {
     };
     let onLoad;
     let onError;
+    let onLOADEDMETADATA;
 
     addListener(element, EVENT_VIEWED, onViewed, {
       once: true,
@@ -360,6 +374,12 @@ export default {
         if (options.loading) {
           removeClass(this.canvas, CLASS_LOADING);
         }
+      }, {
+        once: true,
+      });
+      addListener(image, EVENT_LOADEDMETADATA, onLOADEDMETADATA = () => {
+        removeListener(image, EVENT_LOADEDMETADATA, onLOADEDMETADATA);
+        this.load();
       }, {
         once: true,
       });
